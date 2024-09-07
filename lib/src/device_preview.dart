@@ -12,6 +12,7 @@ import 'package:device_preview/src/views/tool_panel/sections/accessibility.dart'
 import 'package:device_preview/src/views/tool_panel/sections/device.dart';
 import 'package:device_preview/src/views/tool_panel/sections/settings.dart';
 import 'package:device_preview/src/views/tool_panel/sections/system.dart';
+import 'package:device_preview/src/views/tool_panel/sections/builder.dart';
 import 'package:device_preview/src/views/tool_panel/tool_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -112,6 +113,7 @@ class DevicePreview extends StatefulWidget {
     SystemSection(),
     AccessibilitySection(),
     SettingsSection(),
+    BuilderSection(),
   ];
 
   @override

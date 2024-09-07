@@ -59,7 +59,7 @@ class DeviceSection extends StatelessWidget {
     );
 
     return ToolPanelSection(
-      title: 'Device',
+      title: 'Device Berfy',
       children: [
         if (model)
           ListTile(
