@@ -61,6 +61,7 @@ class DevicePreview extends StatefulWidget {
     this.storage,
     this.enabled = true,
     this.backgroundColor,
+    this.onAddButtonPressed,
   }) : super(key: key);
 
   /// If not [enabled], the [child] is used directly.
@@ -105,6 +106,8 @@ class DevicePreview extends StatefulWidget {
 
   /// All the default available devices.
   static final List<DeviceInfo> defaultDevices = Devices.all;
+
+  final VoidCallback? onAddButtonPressed;
 
   /// All the default tools included in the menu : [DeviceSection], [SystemSection],
   /// [AccessibilitySection] and [SettingsSection].
@@ -351,6 +354,8 @@ class DevicePreview extends StatefulWidget {
 class _DevicePreviewState extends State<DevicePreview> {
   bool _isToolPanelPopOverOpen = false;
 
+  late List<Widget> _tools;
+
   late DevicePreviewStorage storage =
       widget.storage ?? DevicePreviewStorage.preferences();
 
@@ -386,6 +391,7 @@ class _DevicePreviewState extends State<DevicePreview> {
   void initState() {
     _onScreenshot = StreamController<DeviceScreenshot>.broadcast();
     super.initState();
+    _initTools();
   }
 
   @override
@@ -394,7 +400,20 @@ class _DevicePreviewState extends State<DevicePreview> {
     if (oldWidget.storage != widget.storage && widget.storage != null) {
       storage = widget.storage!;
     }
+
+    if (oldWidget.tools != widget.tools || oldWidget.onAddButtonPressed != widget.onAddButtonPressed) {
+      _initTools();
+    }
   }
+
+  void _initTools() {
+    _tools = [
+      ...widget.tools.where((tool) => tool is! BuilderSection),
+      BuilderSection(onAddButtonPressed: widget.onAddButtonPressed),
+    ];
+  }
+
+  
 
   Widget _buildPreview(BuildContext context) {
     final theme = Theme.of(context);
@@ -516,7 +535,7 @@ class _DevicePreviewState extends State<DevicePreview> {
             context.select(
               (DevicePreviewStore store) => store.data.isToolbarVisible,
             );
-
+        
         final toolbar = toolbarTheme.asThemeData();
         final background = backgroundTheme.asThemeData();
         return Directionality(
@@ -561,7 +580,7 @@ class _DevicePreviewState extends State<DevicePreview> {
                             right: 0,
                             left: 0,
                             child: DevicePreviewSmallLayout(
-                              slivers: widget.tools,
+                              slivers: _tools,
                               maxMenuHeight: constraints.maxHeight * 0.5,
                               scaffoldKey: scaffoldKey,
                               onMenuVisibleChanged: (isVisible) => setState(() {
@@ -573,7 +592,7 @@ class _DevicePreviewState extends State<DevicePreview> {
                           Positioned.fill(
                             key: const Key('Large'),
                             child: DevicePreviewLargeLayout(
-                              slivers: widget.tools,
+                              slivers: _tools,
                             ),
                           ),
                         AnimatedPositioned(
