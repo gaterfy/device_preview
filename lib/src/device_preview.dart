@@ -62,6 +62,8 @@ class DevicePreview extends StatefulWidget {
     this.enabled = true,
     this.backgroundColor,
     this.onAddButtonPressed,
+    this.onAddTextPressed,
+    this.onAddImagePressed,
   }) : super(key: key);
 
   /// If not [enabled], the [child] is used directly.
@@ -108,6 +110,8 @@ class DevicePreview extends StatefulWidget {
   static final List<DeviceInfo> defaultDevices = Devices.all;
 
   final VoidCallback? onAddButtonPressed;
+  final VoidCallback? onAddTextPressed;
+  final VoidCallback? onAddImagePressed;
 
   /// All the default tools included in the menu : [DeviceSection], [SystemSection],
   /// [AccessibilitySection] and [SettingsSection].
@@ -401,7 +405,7 @@ class _DevicePreviewState extends State<DevicePreview> {
       storage = widget.storage!;
     }
 
-    if (oldWidget.tools != widget.tools || oldWidget.onAddButtonPressed != widget.onAddButtonPressed) {
+    if (oldWidget.tools != widget.tools || oldWidget.onAddButtonPressed != widget.onAddButtonPressed || oldWidget.onAddTextPressed != widget.onAddTextPressed || oldWidget.onAddImagePressed != widget.onAddImagePressed) {
       _initTools();
     }
   }
@@ -409,7 +413,7 @@ class _DevicePreviewState extends State<DevicePreview> {
   void _initTools() {
     _tools = [
       ...widget.tools.where((tool) => tool is! BuilderSection),
-      BuilderSection(onAddButtonPressed: widget.onAddButtonPressed),
+      BuilderSection(onAddButtonPressed: widget.onAddButtonPressed, onAddTextPressed: widget.onAddTextPressed, onAddImagePressed: widget.onAddImagePressed),
     ];
   }
 

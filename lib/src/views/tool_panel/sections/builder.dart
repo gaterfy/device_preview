@@ -3,8 +3,10 @@ import 'package:device_preview/src/views/tool_panel/sections/section.dart';
 
 class BuilderSection extends StatelessWidget {
   final VoidCallback? onAddButtonPressed;
+  final VoidCallback? onAddTextPressed;
+  final VoidCallback? onAddImagePressed;
 
-  const BuilderSection({Key? key, this.onAddButtonPressed}) : super(key: key);
+  const BuilderSection({Key? key, this.onAddButtonPressed, this.onAddTextPressed, this.onAddImagePressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +21,12 @@ class BuilderSection extends StatelessWidget {
         ListTile(
           title: const Text('Add Text'),
           trailing: const Icon(Icons.text_fields),
-          onTap: () {},
+          onTap: onAddTextPressed,
         ),
         ListTile(
           title: const Text('Add Image'),
           trailing: const Icon(Icons.image),
-          onTap: () {},
+          onTap: onAddImagePressed,
         ),
         ListTile(
           title: const Text('Add AppBar'),
