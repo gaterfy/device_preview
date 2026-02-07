@@ -61,6 +61,7 @@ class DevicePreview extends StatefulWidget {
     this.storage,
     this.enabled = true,
     this.backgroundColor,
+    this.background,
     this.onAddButtonPressed,
     this.onAddTextPressed,
     this.onAddImagePressed,
@@ -83,7 +84,12 @@ class DevicePreview extends StatefulWidget {
   /// The background color of the canvas
   ///
   /// Overrides `theme.canvasColor`
+  /// Ignored if [background] is non-null.
   final Color? backgroundColor;
+
+  /// Optional custom background widget (e.g. [CustomPaint] with a mesh painter).
+  /// When non-null, used instead of [backgroundColor] for the area around the device.
+  final Widget? background;
 
   /// The default selected device when opening device preview for the first time.
   final DeviceInfo? defaultDevice;
@@ -447,47 +453,50 @@ class _DevicePreviewState extends State<DevicePreview> {
       (DevicePreviewStore store) => store.data.isDarkMode,
     );
 
-    return Container(
-      color: widget.backgroundColor ?? theme.canvasColor,
-      padding: EdgeInsets.only(
-        top: 20 + mediaQuery.viewPadding.top,
-        right: 20 + mediaQuery.viewPadding.right,
-        left: 20 + mediaQuery.viewPadding.left,
-        bottom: 20,
-      ),
-      child: FittedBox(
-        fit: BoxFit.contain,
-        child: RepaintBoundary(
-          key: _repaintKey,
-          child: DeviceFrame(
-            device: device,
-            isFrameVisible: isFrameVisible,
-            orientation: orientation,
-            screen: VirtualKeyboard(
-              isEnabled: isVirtualKeyboardVisible,
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  platform: device.identifier.platform,
-                  brightness: isDarkMode ? Brightness.dark : Brightness.light,
-                ),
-                child: MediaQuery(
-                  data: DevicePreview._mediaQuery(context),
-                  child: Builder(
-                    key: _appKey,
-                    builder: (context) {
-                      final app = widget.builder(context);
-                      assert(
-                        isWidgetsAppUsingInheritedMediaQuery(app),
-                        'Your widgets app should have its `useInheritedMediaQuery` property set to `true` in order to use DevicePreview.',
-                      );
-                      return app;
-                    },
+    final padding = EdgeInsets.zero;
+    final backgroundWidget = widget.background ??
+        Container(color: widget.backgroundColor ?? theme.canvasColor);
+    return Padding(
+      padding: padding,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(child: backgroundWidget),
+          FittedBox(
+            fit: BoxFit.contain,
+            child: RepaintBoundary(
+              key: _repaintKey,
+              child: DeviceFrame(
+                device: device,
+                isFrameVisible: isFrameVisible,
+                orientation: orientation,
+                screen: VirtualKeyboard(
+                  isEnabled: isVirtualKeyboardVisible,
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      platform: device.identifier.platform,
+                      brightness: isDarkMode ? Brightness.dark : Brightness.light,
+                    ),
+                    child: MediaQuery(
+                      data: DevicePreview._mediaQuery(context),
+                      child: Builder(
+                        key: _appKey,
+                        builder: (context) {
+                          final app = widget.builder(context);
+                          assert(
+                            isWidgetsAppUsingInheritedMediaQuery(app),
+                            'Your widgets app should have its `useInheritedMediaQuery` property set to `true` in order to use DevicePreview.',
+                          );
+                          return app;
+                        },
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -610,14 +619,18 @@ class _DevicePreviewState extends State<DevicePreview> {
                             data: background,
                             child: Container(
                               decoration: BoxDecoration(
-                                boxShadow: const [
-                                  BoxShadow(
-                                    blurRadius: 20,
-                                    color: Color(0xAA000000),
-                                  ),
-                                ],
+                                boxShadow: widget.background == null
+                                    ? const [
+                                        BoxShadow(
+                                          blurRadius: 20,
+                                          color: Color(0xAA000000),
+                                        ),
+                                      ]
+                                    : null,
                                 borderRadius: borderRadius,
-                                color: background.scaffoldBackgroundColor,
+                                color: widget.background != null
+                                    ? Colors.transparent
+                                    : background.scaffoldBackgroundColor,
                               ),
                               child: ClipRRect(
                                 borderRadius: borderRadius,
